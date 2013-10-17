@@ -33,13 +33,13 @@ public class ManageActivity extends Activity {
         final TextView price = (TextView) findViewById(R.id.priceField);
 
 
-        List<String> files = new ArrayList<String>(Arrays.asList(fileList()));
+        List<Item> files = new ArrayList<Item>();
 
-        final ItemListAdapter aa = new ItemListAdapter(this, android.R.layout.simple_list_item_1, files);
+        final ItemListAdapter aa = new ItemListAdapter(this, files);
 
-        final ListView notes = (ListView) findViewById(R.id.itemList);
+        final ListView itemList = (ListView) findViewById(R.id.itemList);
 
-        notes.setAdapter(aa);
+        itemList.setAdapter(aa);
 
 
         //Retrieving past DB information to display
@@ -53,23 +53,17 @@ public class ManageActivity extends Activity {
         savedDB.moveToFirst();
         while(!savedDB.isAfterLast()){
             String itemName = savedDB.getString(1);
+            String itemPrice = savedDB.getString(2);
             System.out.println("RETRIEVED: " + itemName);
-            aa.insert(itemName, 0);
+            Item item = new Item(itemName, "$" + itemPrice);
+            aa.insert(item, 0);
             aa.notifyDataSetChanged();
             savedDB.moveToNext();
         }
 
-        Button close = (Button)findViewById(R.id.closeButton);
-
-        close.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         //Adding the item to the database
         Button add = (Button)findViewById(R.id.addButton);
+        Button back = (Button) findViewById(R.id.closeButton);
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,9 +87,22 @@ public class ManageActivity extends Activity {
                             SpenDBHelper.FeedEntry.TABLE_NAME,
                             null,
                             values);
-                    aa.insert(itemName,0);
+
+                    Item item = new Item(itemName, "$" + itemPrice);
+                    aa.insert(item, 0);
                     aa.notifyDataSetChanged();
                 }
+                //Making the input text back to empty
+                name.setText("");
+                price.setText("");
+            }
+        });
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent in = new Intent(ManageActivity.this, MainActivity.class);
+                startActivityForResult(in, 1);
             }
         });
 
